@@ -7,6 +7,8 @@ import { FormSection } from "../components/FormSection";
 import { Input } from "../components/Input";
 import { BookingProcessingOverlay } from "../components/BookingProcessingOverlay";
 
+const MIN_AMOUNT_OF_RETRIES = 1;
+
 enum Steps {
   "bags",
   "person",
@@ -34,12 +36,12 @@ const Home: NextPage = () => {
 
   // TODO if we want to make every step editable we could make an object
   // with all the steps that we filled in and that we can edit
-  const [editingPerson, setEditingPerson] = useState(true);
+  const [isEditingPerson, setIsEditingPerson] = useState(true);
   const [step, setStep] = useState<Steps>(Steps.bags);
   const goNextStep = () => {
     if (step < StepsAmount) {
       if (step === Steps.person) {
-        setEditingPerson(false);
+        setIsEditingPerson(false);
       }
       setStep(step + 1);
     }
@@ -69,7 +71,7 @@ const Home: NextPage = () => {
   const [paymentRetries, setPaymentRetries] = useState(0);
   const processPayment = () => {
     setPaymentStatus("processing");
-    if (paymentRetries < 1) {
+    if (paymentRetries < MIN_AMOUNT_OF_RETRIES) {
       setTimeout(() => {
         setPaymentStatus("failed");
         setPaymentRetries(paymentRetries + 1);
@@ -100,12 +102,12 @@ const Home: NextPage = () => {
           title="Personal information"
           status={
             step >= Steps.person
-              ? editingPerson
+              ? isEditingPerson
                 ? "visible"
                 : "completed"
               : "hidden"
           }
-          onChangeClick={() => setEditingPerson(true)}
+          onChangeClick={() => setIsEditingPerson(true)}
         >
           <Input label="Name" value={name} onChange={changeRouterKey("name")} />
           <Input
