@@ -7,7 +7,7 @@ interface Props {
 export const Input: React.FC<Props> = ({ label, value, onChange }) => {
   return (
     <>
-      <label className="text-base text-black mb-2">{label}</label>
+      <label className="text-base text-black mt-2">{label}</label>
       <input
         className="w-full p-3 rounded-md border-gray-300 border-1"
         type="text"
