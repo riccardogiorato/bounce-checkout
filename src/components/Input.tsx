@@ -14,7 +14,7 @@ export const Input: React.FC<Props> = ({ label, value, onChange }) => {
         placeholder=""
         value={value}
         onChange={(e) => {
-          onChange(event?.target.value);
+          onChange(e?.target.value);
         }}
       />
     </>
