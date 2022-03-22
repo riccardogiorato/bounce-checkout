@@ -31,16 +31,9 @@ const Home: NextPage = () => {
   } = router.query;
 
   const amountOfBags = Number(bags);
-  const setAmountOfBags = (amount: number) => {
-    router.push({
-      pathname: "/",
-      query: {
-        ...router.query,
-        bags: amount,
-      },
-    });
-  };
 
+  // TODO if we want to make every step editable we could make an object
+  // with all the steps that we filled in and that we can edit
   const [editingPerson, setEditingPerson] = useState(true);
   const [step, setStep] = useState<Steps>(Steps.bags);
   const goNextStep = () => {
@@ -52,9 +45,8 @@ const Home: NextPage = () => {
     }
   };
 
-  // set value of the input to the query
-  const changeForm = (key: string) => {
-    return (newValue: string) => {
+  const changeRouterKey = (key: string) => {
+    return (newValue: string | number) => {
       router.replace({
         pathname: "/",
         query: {
@@ -102,7 +94,7 @@ const Home: NextPage = () => {
         <BookingPlaceAndBags
           place={place}
           bags={amountOfBags}
-          onBagsChange={setAmountOfBags}
+          onBagsChange={changeRouterKey("bags")}
         />
         <FormSection
           title="Personal information"
@@ -115,8 +107,12 @@ const Home: NextPage = () => {
           }
           onChangeClick={() => setEditingPerson(true)}
         >
-          <Input label="Name" value={name} onChange={changeForm("name")} />
-          <Input label="Email" value={email} onChange={changeForm("email")} />
+          <Input label="Name" value={name} onChange={changeRouterKey("name")} />
+          <Input
+            label="Email"
+            value={email}
+            onChange={changeRouterKey("email")}
+          />
         </FormSection>
         <FormSection
           title="Payment information"
