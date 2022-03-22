@@ -41,9 +41,15 @@ const Home: NextPage = () => {
     });
   };
 
+  const [editingPerson, setEditingPerson] = useState(true);
   const [step, setStep] = useState<Steps>(Steps.bags);
   const goNextStep = () => {
-    if (step < StepsAmount) setStep(step + 1);
+    if (step < StepsAmount) {
+      if (step === Steps.person) {
+        setEditingPerson(false);
+      }
+      setStep(step + 1);
+    }
   };
 
   // set value of the input to the query
@@ -100,7 +106,14 @@ const Home: NextPage = () => {
         />
         <FormSection
           title="Personal information"
-          status={step >= Steps.person ? "visible" : "hidden"}
+          status={
+            step >= Steps.person
+              ? editingPerson
+                ? "visible"
+                : "completed"
+              : "hidden"
+          }
+          onChangeClick={() => setEditingPerson(true)}
         >
           <Input label="Name" value={name} onChange={changeForm("name")} />
           <Input label="Email" value={email} onChange={changeForm("email")} />
