@@ -34,18 +34,7 @@ const Home: NextPage = () => {
 
   const amountOfBags = Number(bags);
 
-  // TODO if we want to make every step editable we could make an object
-  // with all the steps that we filled in and that we can edit
-  const [isEditingPerson, setIsEditingPerson] = useState(true);
   const [step, setStep] = useState<Steps>(Steps.bags);
-  const goNextStep = () => {
-    if (step < StepsAmount) {
-      if (step === Steps.person) {
-        setIsEditingPerson(false);
-      }
-      setStep(step + 1);
-    }
-  };
 
   const changeRouterKey = (key: string) => {
     return (newValue: string | number) => {
@@ -89,11 +78,54 @@ const Home: NextPage = () => {
     }
   }, [paymentStatus, router]);
 
-  const mainButtonDisabled =
-    (step === Steps.card && card === "") ||
-    (step === Steps.person && (name === "" || email === ""));
+  const formSteps = [
+    {
+      title: "Personal Details",
+      stepValue: Steps.person,
+      inputs: [
+        {
+          label: "Name",
+          value: name,
+          onChange: changeRouterKey("name"),
+        },
+        {
+          label: "Email",
+          value: email,
+          onChange: changeRouterKey("email"),
+        },
+      ],
+    },
+    {
+      title: "Payment Information",
+      stepValue: Steps.card,
+      inputs: [
+        {
+          label: "Card Details",
+          value: card,
+          onChange: changeCard,
+        },
+      ],
+    },
+  ];
+
+  const mainButtonDisabled = formSteps
+    .find((formStep) => formStep.stepValue === step)
+    ?.inputs.some((input) => !input.value);
 
   const mainButtonError = paymentStatus === "failed";
+
+  const [isCompletedSteps, setIsCompletedSteps] = useState<{
+    [key in Steps]?: boolean;
+  }>();
+  const goNextStep = () => {
+    if (step < StepsAmount) {
+      setIsCompletedSteps({
+        ...isCompletedSteps,
+        [step]: true,
+      });
+      setStep(step + 1);
+    }
+  };
 
   return (
     <>
@@ -104,30 +136,34 @@ const Home: NextPage = () => {
           bags={amountOfBags}
           onBagsChange={changeRouterKey("bags")}
         />
-        <FormSection
-          title="Personal Details"
-          status={
-            step >= Steps.person
-              ? isEditingPerson
-                ? "visible"
-                : "completed"
-              : "hidden"
-          }
-          onChangeClick={() => setIsEditingPerson(true)}
-        >
-          <Input label="Name" value={name} onChange={changeRouterKey("name")} />
-          <Input
-            label="Email"
-            value={email}
-            onChange={changeRouterKey("email")}
-          />
-        </FormSection>
-        <FormSection
-          title="Payment information"
-          status={step >= Steps.card ? "visible" : "hidden"}
-        >
-          <Input label="Card Details" value={card} onChange={changeCard} />
-        </FormSection>
+        {formSteps.map(({ title, stepValue, inputs }) => (
+          <FormSection
+            key={stepValue}
+            title={title}
+            status={
+              step >= stepValue
+                ? isCompletedSteps && isCompletedSteps[stepValue]
+                  ? "completed"
+                  : "visible"
+                : "hidden"
+            }
+            onChangeClick={() => {
+              setIsCompletedSteps({
+                ...isCompletedSteps,
+                [stepValue]: false,
+              });
+            }}
+          >
+            {inputs.map(({ label, value, onChange }) => (
+              <Input
+                key={label}
+                label={label}
+                value={value}
+                onChange={onChange}
+              />
+            ))}
+          </FormSection>
+        ))}
 
         <BottomControls bagsAmount={amountOfBags} bagSinglePrice={pricePerBag}>
           <button
