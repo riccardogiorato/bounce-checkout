@@ -89,6 +89,12 @@ const Home: NextPage = () => {
     }
   }, [paymentStatus, router]);
 
+  const mainButtonDisabled =
+    (step === Steps.card && card === "") ||
+    (step === Steps.person && (name === "" || email === ""));
+
+  const mainButtonError = paymentStatus === "failed";
+
   return (
     <>
       {paymentStatus === "processing" && <BookingProcessingOverlay />}
@@ -99,7 +105,7 @@ const Home: NextPage = () => {
           onBagsChange={changeRouterKey("bags")}
         />
         <FormSection
-          title="Personal information"
+          title="Personal Details"
           status={
             step >= Steps.person
               ? isEditingPerson
@@ -120,34 +126,27 @@ const Home: NextPage = () => {
           title="Payment information"
           status={step >= Steps.card ? "visible" : "hidden"}
         >
-          <Input label="Card Number" value={card} onChange={changeCard} />
+          <Input label="Card Details" value={card} onChange={changeCard} />
         </FormSection>
 
         <BottomControls bagsAmount={amountOfBags} bagSinglePrice={pricePerBag}>
-          {step < Steps.card ? (
-            <button
-              className="rounded flex items-center bg-blue-500 m-2 px-4 py-4 text-white hover:bg-blue-600"
-              onClick={goNextStep}
-            >
-              Next
-            </button>
-          ) : (
-            <button
-              className={`rounded flex items-cente m-2 px-4 py-4 text-white ${
-                paymentStatus !== "failed"
-                  ? "bg-blue-500 hover:bg-blue-600"
-                  : "bg-red-500 hover:bg-red-600"
-              } ${card === "" && "opacity-50"}`}
-              onClick={processPayment}
-              disabled={card === ""}
-            >
-              {paymentStatus === "failed"
-                ? "Retry"
-                : paymentStatus === "processing"
-                ? "..."
-                : "Booking"}
-            </button>
-          )}
+          <button
+            className={`rounded flex items-cente m-2 px-4 py-4 text-white ${
+              mainButtonError
+                ? "bg-red-500 hover:bg-red-600"
+                : "bg-blue-500 hover:bg-blue-600"
+            } ${mainButtonDisabled && "opacity-50"}`}
+            onClick={step < Steps.card ? goNextStep : processPayment}
+            disabled={mainButtonDisabled}
+          >
+            {step < Steps.card
+              ? "Next"
+              : paymentStatus === "failed"
+              ? "Retry"
+              : paymentStatus === "processing"
+              ? "..."
+              : "Book"}
+          </button>
         </BottomControls>
       </div>
     </>

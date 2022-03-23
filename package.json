@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "postinstall": "yarn build:tailwind",
     "dev": "concurrently \"yarn:dev:*\"",
     "dev:next": "next dev",
     "dev:tailwind": "npx tailwindcss -i src/styles/style.css -o src/styles/build.css --minify --watch",
